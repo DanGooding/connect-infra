@@ -39,17 +39,15 @@ variable "db_credentials" {
 variable "api_service_container_image_tag" {
   description = "container image to run for API service"
   type        = string
-  default     = "6d877e3688db18505ba766310425e49095da550a"
 }
 
 variable "static_service_container_image_tag" {
   description = "container image to run for static webserver"
   type        = string
-  default     = "6d877e3688db18505ba766310425e49095da550a"
 }
 
 variable "github_repo" {
   description = "github repository that actions run in"
-  type = string
-  default = "DanGooding/connect"
+  type        = string
+  default     = "DanGooding/connect"
 }
