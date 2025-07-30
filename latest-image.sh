@@ -1,15 +1,12 @@
 #!/bin/bash
 
 set -euo pipefail
-set -x
 
 # get rev40 tag of latest uploaded image
 latest-prod-image-tag() {
-  REPO=$1
-
   aws ecr describe-images \
     --no-paginate \
-    --repository-name $REPO \
+    --repository-name $1 \
   | jq --raw-output -f <(cat <<EOF
   .imageDetails
   | sort_by(.imagePushedAt) | reverse 
@@ -22,25 +19,29 @@ EOF
 
 # assert image with this tag exists
 image-exists() {
-  REPO=$1
-  TAG=$2
-
   aws ecr describe-images \
     --no-paginate \
-    --repository-name $REPO \
-  | jq -f <(cat <<EOF
+    --repository-name $1 \
+  | jq --exit-status -f <(cat <<EOF
   .imageDetails
-  | map(select(.imageTags | select(. != null) | .[] == "$TAG"))
-  | .[0]
+  | map(select(.imageTags | select(. != null) | .[] == "$2"))
+  | .[0] != null
 EOF
-  )
+  ) >/dev/null
 }
 
-API_SERVER_REPO=connect-api-server
-STATIC_SERVER_REPO=connect-static-server
+REPOS=(connect-api-server connect-static-server)
 
-TAG=$(latest-prod-image-tag $API_SERVER_REPO)
+# find the latest from an arbitrary repo, then assert both have it.
+# getting the latest from the intersection of both is a bit awkward
+# since we'd have to intersect and then lookup timestamps again.
+LATEST_PROD_TAG=$(latest-prod-image-tag ${REPOS[0]})
 
-image-exists $API_SERVER_REPO $TAG
-image-exists $STATIC_SERVER_REPO $TAG
+for REPO in ${REPOS[@]}; do
+  if ! image-exists $REPO $LATEST_PROD_TAG; then
+    echo image $LATEST_PROD_TAG missing from $REPO >&2
+    exit 1
+  fi
+done
 
+echo $LATEST_PROD_TAG
