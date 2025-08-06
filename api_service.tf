@@ -63,6 +63,7 @@ module "api_service" {
           valueFrom = aws_secretsmanager_secret.db_password.arn
         }
       ]
+      enable_cloudwatch_logging = false
     }
   }
 

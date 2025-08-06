@@ -40,6 +40,9 @@ module "static_service" {
 
       // nginx writes to /etc and /var
       readonlyRootFilesystem = false
+
+      // seems to be creating a very high cardinality of metrics
+      enable_cloudwatch_logging = false
     }
   }
 
