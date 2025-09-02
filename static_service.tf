@@ -18,7 +18,7 @@ module "static_service" {
   cpu                        = 256 // 0.25 vCPU
   memory                     = 512 // MB
   desired_count              = 1
-  deployment_maximum_percent = 200
+  deployment_maximum_percent = 100
   enable_autoscaling         = false
 
   assign_public_ip = true
