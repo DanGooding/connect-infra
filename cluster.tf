@@ -8,6 +8,13 @@ module "cluster" {
     }
   }
 
+  setting = [
+    {
+      name  = "containerInsights"
+      value = "disabled"
+    }
+  ]
+
   tags = {
     project_name = var.project_name
   }
